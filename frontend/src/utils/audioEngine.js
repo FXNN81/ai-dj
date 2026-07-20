@@ -1,88 +1,89 @@
-// Web Audio API based sound engine for DJ pads and playback
-let ctx = null;
+// Web Audio API based sound engine for DJ pads - routes through djEngine master
+import { getEngine } from './djEngine';
+
 function getCtx() {
-  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-  if (ctx.state === 'suspended') ctx.resume();
-  return ctx;
+  const eng = getEngine();
+  eng.ensureRunning();
+  return { ctx: eng.getContext(), dest: eng.getPadDestination() };
 }
 
-// Synthesized drum sounds
 export function playKick() {
-  const c = getCtx();
-  const o = c.createOscillator();
-  const g = c.createGain();
-  o.frequency.setValueAtTime(150, c.currentTime);
-  o.frequency.exponentialRampToValueAtTime(0.01, c.currentTime + 0.5);
-  g.gain.setValueAtTime(1, c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.5);
-  o.connect(g); g.connect(c.destination);
-  o.start(); o.stop(c.currentTime + 0.5);
+  const { ctx, dest } = getCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.frequency.setValueAtTime(150, ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+  g.gain.setValueAtTime(1, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+  o.connect(g); g.connect(dest);
+  o.start(); o.stop(ctx.currentTime + 0.5);
 }
 
 export function playSnare() {
-  const c = getCtx();
-  const bufferSize = c.sampleRate * 0.2;
-  const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+  const { ctx, dest } = getCtx();
+  const bufferSize = ctx.sampleRate * 0.2;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-  const noise = c.createBufferSource();
+  const noise = ctx.createBufferSource();
   noise.buffer = buffer;
-  const filter = c.createBiquadFilter();
+  const filter = ctx.createBiquadFilter();
   filter.type = 'highpass'; filter.frequency.value = 1000;
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.7, c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.2);
-  noise.connect(filter); filter.connect(g); g.connect(c.destination);
-  noise.start(); noise.stop(c.currentTime + 0.2);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.7, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+  noise.connect(filter); filter.connect(g); g.connect(dest);
+  noise.start(); noise.stop(ctx.currentTime + 0.2);
 }
 
 export function playHat(open = false) {
-  const c = getCtx();
-  const bufferSize = c.sampleRate * (open ? 0.3 : 0.05);
-  const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+  const { ctx, dest } = getCtx();
+  const dur = open ? 0.3 : 0.05;
+  const bufferSize = ctx.sampleRate * dur;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-  const noise = c.createBufferSource();
+  const noise = ctx.createBufferSource();
   noise.buffer = buffer;
-  const filter = c.createBiquadFilter();
+  const filter = ctx.createBiquadFilter();
   filter.type = 'highpass'; filter.frequency.value = 7000;
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.3, c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + (open ? 0.3 : 0.05));
-  noise.connect(filter); filter.connect(g); g.connect(c.destination);
-  noise.start(); noise.stop(c.currentTime + (open ? 0.3 : 0.05));
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.3, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + dur);
+  noise.connect(filter); filter.connect(g); g.connect(dest);
+  noise.start(); noise.stop(ctx.currentTime + dur);
 }
 
 export function playTone(freq = 440, duration = 0.3, type = 'sine') {
-  const c = getCtx();
-  const o = c.createOscillator();
-  const g = c.createGain();
+  const { ctx, dest } = getCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
   o.type = type;
-  o.frequency.setValueAtTime(freq, c.currentTime);
-  g.gain.setValueAtTime(0.3, c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + duration);
-  o.connect(g); g.connect(c.destination);
-  o.start(); o.stop(c.currentTime + duration);
+  o.frequency.setValueAtTime(freq, ctx.currentTime);
+  g.gain.setValueAtTime(0.3, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+  o.connect(g); g.connect(dest);
+  o.start(); o.stop(ctx.currentTime + duration);
 }
 
 export function playClap() {
-  const c = getCtx();
+  const { ctx, dest } = getCtx();
   [0, 0.02, 0.04].forEach(delay => {
-    const bufferSize = c.sampleRate * 0.08;
-    const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+    const bufferSize = ctx.sampleRate * 0.08;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-    const noise = c.createBufferSource();
+    const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    const filter = c.createBiquadFilter();
+    const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass'; filter.frequency.value = 1500;
-    const g = c.createGain();
-    g.gain.setValueAtTime(0, c.currentTime + delay);
-    g.gain.linearRampToValueAtTime(0.6, c.currentTime + delay + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + delay + 0.1);
-    noise.connect(filter); filter.connect(g); g.connect(c.destination);
-    noise.start(c.currentTime + delay);
-    noise.stop(c.currentTime + delay + 0.1);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, ctx.currentTime + delay);
+    g.gain.linearRampToValueAtTime(0.6, ctx.currentTime + delay + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.1);
+    noise.connect(filter); filter.connect(g); g.connect(dest);
+    noise.start(ctx.currentTime + delay);
+    noise.stop(ctx.currentTime + delay + 0.1);
   });
 }
 
@@ -97,9 +98,5 @@ const padSounds = [
   { name: 'FX', color: '#ec4899', fn: () => playTone(1200, 0.3, 'square') },
 ];
 
-export function playPad(index) {
-  const p = padSounds[index % padSounds.length];
-  p.fn();
-}
-
+export function playPad(index) { padSounds[index % padSounds.length].fn(); }
 export const PAD_META = padSounds;

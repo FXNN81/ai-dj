@@ -4,7 +4,7 @@ import Fader from './Fader';
 import JogWheel from './JogWheel';
 import PerformancePads from './PerformancePads';
 
-export default function DeckControls({ side = 'left', playing, onPlay, onCue, deck = 'A', color = '#ff2b6b' }) {
+export default function DeckControls({ side = 'left', playing, onPlay, onCue, onTempo, deck = 'A', color = '#ff2b6b' }) {
   const isLeft = side === 'left';
   return (
     <div className={`flex flex-col gap-2 ${isLeft ? '' : ''}`}>
@@ -36,7 +36,7 @@ export default function DeckControls({ side = 'left', playing, onPlay, onCue, de
             <button className="text-[7px] font-bold py-1 px-1 rounded-sm text-neutral-300" style={{ background: '#0a0a0a', border: '1px solid #33333388' }}>VINYL</button>
             <div className="flex flex-col gap-2 items-center mt-1">
               <div className="text-[7px] text-neutral-500">TEMPO</div>
-              <Fader height={130} width={16} value={50} color="#404040" />
+              <Fader height={130} width={16} value={50} color="#404040" onChange={onTempo} />
               <div className="text-[7px] text-neutral-500">±8%</div>
             </div>
           </div>
@@ -50,7 +50,7 @@ export default function DeckControls({ side = 'left', playing, onPlay, onCue, de
             <button className="text-[7px] font-bold py-1 px-1 rounded-sm text-neutral-300" style={{ background: '#0a0a0a', border: '1px solid #33333388' }}>VINYL</button>
             <div className="flex flex-col gap-2 items-center mt-1">
               <div className="text-[7px] text-neutral-500">TEMPO</div>
-              <Fader height={130} width={16} value={50} color="#404040" />
+              <Fader height={130} width={16} value={50} color="#404040" onChange={onTempo} />
               <div className="text-[7px] text-neutral-500">±8%</div>
             </div>
           </div>

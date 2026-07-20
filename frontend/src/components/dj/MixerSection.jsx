@@ -32,12 +32,12 @@ function ChannelStrip({ index, color, onLevelChange }) {
         })}
       </div>
       {/* Channel fader */}
-      <Fader height={90} width={20} value={level} onChange={(v) => { setLevel(v); onLevelChange && onLevelChange(v); }} color="#404040" />
+      <Fader height={90} width={20} value={level} onChange={(v) => { setLevel(v); onLevelChange && onLevelChange(index, v); }} color="#404040" />
     </div>
   );
 }
 
-export default function MixerSection({ children }) {
+export default function MixerSection({ children, onCrossfaderChange, onLevelChange }) {
   const [xf, setXf] = useState(50);
   const channelColors = ['#ff8a00', '#ffd400', '#22c55e', '#00d4ff'];
 
@@ -63,10 +63,10 @@ export default function MixerSection({ children }) {
 
       {/* Channel strips 3, 1, 2, 4 (as per image ordering) */}
       <div className="grid grid-cols-4 gap-3 mt-1">
-        <ChannelStrip index={3} color={channelColors[2]} />
-        <ChannelStrip index={1} color={channelColors[0]} />
-        <ChannelStrip index={2} color={channelColors[1]} />
-        <ChannelStrip index={4} color={channelColors[3]} />
+        <ChannelStrip index={3} color={channelColors[2]} onLevelChange={onLevelChange} />
+        <ChannelStrip index={1} color={channelColors[0]} onLevelChange={onLevelChange} />
+        <ChannelStrip index={2} color={channelColors[1]} onLevelChange={onLevelChange} />
+        <ChannelStrip index={4} color={channelColors[3]} onLevelChange={onLevelChange} />
       </div>
 
       {/* Crossfader */}
@@ -74,7 +74,7 @@ export default function MixerSection({ children }) {
         <div className="flex justify-between w-full text-[8px] text-neutral-500 font-mono px-1">
           <span>A</span><span>CROSSFADER</span><span>B</span>
         </div>
-        <Fader orientation="horizontal" width={180} value={xf} onChange={setXf} />
+        <Fader orientation="horizontal" width={180} value={xf} onChange={(v) => { setXf(v); onCrossfaderChange && onCrossfaderChange(v); }} />
       </div>
 
       {/* XDJ-AZ label */}
