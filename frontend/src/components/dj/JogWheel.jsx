@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b', logo = 'A', onNudge }) {
+export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b', logo = 'A' }) {
   const [rotation, setRotation] = useState(0);
   const dragging = useRef(false);
   const lastAngle = useRef(0);
   const wheelRef = useRef(null);
   const rafRef = useRef(null);
 
-  // Auto-rotate when playing
   useEffect(() => {
     if (!playing) return;
     let last = performance.now();
@@ -43,8 +42,7 @@ export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b
     if (delta < -180) delta += 360;
     lastAngle.current = a;
     setRotation(r => (r + delta + 360) % 360);
-    onNudge && onNudge(delta);
-  }, [onNudge]);
+  }, []);
 
   const onUp = useCallback(() => { dragging.current = false; }, []);
 
@@ -61,8 +59,7 @@ export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b
     };
   }, [onMove, onUp]);
 
-  // Ridged edge
-  const ridges = Array.from({ length: 60 });
+  const ridges = Array.from({ length: 72 });
 
   return (
     <div
@@ -72,17 +69,17 @@ export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b
       className="relative rounded-full cursor-grab active:cursor-grabbing select-none"
       style={{
         width: size, height: size,
-        background: 'radial-gradient(circle at 30% 25%, #2a2a2a 0%, #0f0f0f 55%, #050505 100%)',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.7), inset 0 4px 10px rgba(255,255,255,0.05), inset 0 -6px 20px rgba(0,0,0,0.9)',
-        border: '2px solid #1a1a1a'
+        background: 'radial-gradient(circle at 30% 25%, #383838 0%, #1a1a1a 45%, #050505 100%)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.8), inset 0 4px 12px rgba(255,255,255,0.06), inset 0 -8px 24px rgba(0,0,0,0.95), 0 0 0 2px #0a0a0a',
       }}
     >
-      {/* Outer ridged ring */}
+      {/* Outer ridged metallic ring */}
       <div
-        className="absolute inset-0 rounded-full"
+        className="absolute rounded-full overflow-hidden"
         style={{
+          inset: '3%',
+          background: 'conic-gradient(#2a2a2a, #454545, #2a2a2a, #454545, #2a2a2a, #454545, #2a2a2a, #454545, #2a2a2a)',
           transform: `rotate(${rotation}deg)`,
-          transition: dragging.current ? 'none' : undefined,
         }}
       >
         {ridges.map((_, i) => (
@@ -90,23 +87,42 @@ export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b
             key={i}
             className="absolute left-1/2 top-0"
             style={{
-              width: 2, height: 10,
-              background: 'linear-gradient(180deg, #2a2a2a, #050505)',
-              transformOrigin: `50% ${size / 2}px`,
-              transform: `translateX(-50%) rotate(${(i * 360) / 60}deg)`,
+              width: 1.5, height: 12,
+              background: 'linear-gradient(180deg, #4a4a4a, #0a0a0a)',
+              transformOrigin: `50% ${size * 0.47}px`,
+              transform: `translateX(-50%) rotate(${(i * 360) / 72}deg)`,
             }}
           />
         ))}
       </div>
 
-      {/* Inner disc */}
+      {/* Inner dark disc (touch plate) */}
       <div
         className="absolute rounded-full"
         style={{
-          top: '10%', left: '10%', width: '80%', height: '80%',
-          background: 'radial-gradient(circle at 40% 35%, #1a1a1a 0%, #050505 70%)',
-          boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.9), inset 0 -2px 6px rgba(255,255,255,0.03)',
-          border: '1px solid #262626'
+          top: '11%', left: '11%', width: '78%', height: '78%',
+          background: 'radial-gradient(circle at 40% 30%, #1a1a1a 0%, #050505 65%, #000 100%)',
+          boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.9), inset 0 -3px 8px rgba(255,255,255,0.03), 0 0 0 1px #262626',
+        }}
+      />
+
+      {/* Thin bright color ring */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          top: '13.5%', left: '13.5%', width: '73%', height: '73%',
+          background: `conic-gradient(from 0deg, ${color}, ${color}44 15%, ${color} 30%, ${color}22 50%, ${color} 70%, ${color}44 85%, ${color})`,
+          filter: `blur(0.5px) drop-shadow(0 0 8px ${color}88)`,
+          opacity: playing ? 0.95 : 0.5,
+          transform: `rotate(${rotation * 0.5}deg)`,
+        }}
+      />
+      <div
+        className="absolute rounded-full"
+        style={{
+          top: '15%', left: '15%', width: '70%', height: '70%',
+          background: 'radial-gradient(circle at 40% 30%, #1a1a1a 0%, #050505 65%, #000 100%)',
+          boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.9)',
         }}
       />
 
@@ -114,42 +130,55 @@ export default function JogWheel({ size = 260, playing = false, color = '#ff2b6b
       <div
         className="absolute rounded-full flex items-center justify-center overflow-hidden"
         style={{
-          top: '25%', left: '25%', width: '50%', height: '50%',
+          top: '28%', left: '28%', width: '44%', height: '44%',
           background: '#000',
           border: '2px solid #1a1a1a',
-          boxShadow: `0 0 20px ${color}55, inset 0 0 15px rgba(0,0,0,0.9)`
+          boxShadow: `0 0 24px ${color}55, inset 0 0 16px rgba(0,0,0,0.95)`,
         }}
       >
         {/* Rotating spectrum ring */}
         <div
-          className="absolute inset-2 rounded-full"
+          className="absolute inset-1 rounded-full"
           style={{
             background: `conic-gradient(from ${rotation}deg, ${color}, #ffd400, #22c55e, #00d4ff, #a855f7, ${color})`,
-            filter: 'blur(1px)',
-            opacity: 0.85
+            filter: 'blur(1.5px)',
+            opacity: playing ? 0.9 : 0.65,
           }}
         />
-        <div className="absolute rounded-full" style={{ top: '18%', left: '18%', width: '64%', height: '64%', background: '#000', border: '1px solid #1a1a1a' }} />
+        <div className="absolute rounded-full" style={{ top: '15%', left: '15%', width: '70%', height: '70%', background: '#000', border: '1px solid #1a1a1a' }} />
         <div
-          className="relative z-10 font-black text-white"
-          style={{ fontSize: size * 0.14, textShadow: `0 0 8px ${color}` }}
+          className="relative z-10 font-black italic"
+          style={{ fontSize: size * 0.14, color: '#fff', textShadow: `0 0 10px ${color}, 0 0 4px #fff` }}
         >
           {logo}
         </div>
-        {/* Position marker */}
+        {/* Position marker (rotates) */}
         <div
-          className="absolute"
+          className="absolute z-20"
           style={{
-            top: '4%', left: '50%',
-            width: 3, height: '18%',
+            top: '2%', left: '50%',
+            width: 4, height: '20%',
             background: color,
             transform: `translateX(-50%) rotate(${rotation}deg)`,
-            transformOrigin: `50% ${size * 0.23}px`,
-            boxShadow: `0 0 8px ${color}`,
-            borderRadius: 2
+            transformOrigin: `50% ${size * 0.22}px`,
+            boxShadow: `0 0 10px ${color}, 0 0 4px #fff`,
+            borderRadius: 2,
           }}
         />
       </div>
+
+      {/* Fixed 12 o'clock LED marker */}
+      <div
+        className="absolute"
+        style={{
+          top: '4.5%', left: '50%',
+          width: 3, height: 7,
+          transform: 'translateX(-50%)',
+          background: playing ? '#fff' : '#666',
+          borderRadius: 1,
+          boxShadow: playing ? `0 0 8px #fff, 0 0 14px ${color}` : 'none',
+        }}
+      />
     </div>
   );
 }
