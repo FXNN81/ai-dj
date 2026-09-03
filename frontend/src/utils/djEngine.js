@@ -81,6 +81,15 @@ class DJEngine {
     return deck;
   }
 
+  async loadUrl(id, streamUrl, displayName = 'Streamed track') {
+    const deck = this.decks[id];
+    if (!deck) return null;
+    deck.filename = displayName;
+    deck.loaded = false;
+    await deck.ws.load(streamUrl);
+    return deck;
+  }
+
   toggle(id) {
     this.ensureRunning();
     const deck = this.decks[id];

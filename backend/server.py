@@ -69,6 +69,14 @@ async def get_status_checks():
 # Include the router in the main app
 app.include_router(api_router)
 
+# SoundCloud integration router
+from soundcloud_routes import router as sc_router
+app.include_router(sc_router)
+
+# AI (Claude) Smart Track Selection router
+from ai_routes import router as ai_router
+app.include_router(ai_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

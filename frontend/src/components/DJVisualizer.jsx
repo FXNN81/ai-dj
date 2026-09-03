@@ -5,6 +5,7 @@ import MixerSection from './dj/MixerSection';
 import Knob from './dj/Knob';
 import { Volume2, Headphones, Mic, Upload, Circle, Square, Download } from 'lucide-react';
 import { getEngine } from '../utils/djEngine';
+import SoundCloudSearch from './dj/SoundCloudSearch';
 
 export default function DJVisualizer() {
   const [playA, setPlayA] = useState(false);
@@ -54,6 +55,14 @@ export default function DJVisualizer() {
     const d = await engine.loadFile(deck, file);
     if (deck === 'A') setNameA(file.name);
     else setNameB(file.name);
+  };
+
+  const handleStreamUrl = async (deck, url, displayName) => {
+    const engine = getEngine();
+    engine.ensureRunning();
+    await engine.loadUrl(deck, url, displayName);
+    if (deck === 'A') setNameA(displayName);
+    else setNameB(displayName);
   };
 
   const togglePlay = (deck) => {
